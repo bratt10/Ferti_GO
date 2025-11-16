@@ -72,7 +72,7 @@ async function cargarFertilizantes() {
     actualizarContadorResultados(fertilizantesGlobal.length, fertilizantesGlobal.length);
   } catch (error) {
     console.error("Error cargando fertilizantes:", error);
-    alert("Error al cargar los fertilizantes. Verifica que el servidor esté activo.");
+    alert("Error al cargar los fertilizantes.");
   }
 }
 

@@ -86,7 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
       actualizarContadorResultados(usuarios.length, usuarios.length);
     } catch (err) {
       console.error("cargarUsuarios error:", err);
-      alert("No se pudieron cargar los usuarios. Revisa la consola y que el backend esté corriendo.");
+      alert("No se pudieron cargar los usuarios.");
     }
   }
 

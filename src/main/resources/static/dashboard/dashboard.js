@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   } catch (err) {
     console.error(" Error al conectar el Dashboard:", err);
-    alert("Error al cargar datos del Dashboard. Verifica que el backend esté corriendo.");
+    alert("Error al cargar datos del Dashboard.");
   }
 });
 function cerrarSesion() {
