@@ -26,7 +26,7 @@
   background: var(--gris-claro);
 }
 
-/* ===== FILTROS DE BÚSQUEDA ===== */
+/* ===== BUSCADOR ===== */
 .filtros-container {
   margin: 20px 0;
   display: flex;
@@ -41,7 +41,7 @@
 
 .filtro-busqueda {
   flex: 1;
-  min-width: 250px;
+  min-width: 300px;
 }
 
 #buscadorFertilizantes {
@@ -58,60 +58,6 @@
 #buscadorFertilizantes:focus {
   border-color: var(--verde-texto);
   box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
-}
-
-.filtro-fechas {
-  display: flex;
-  gap: 12px;
-  align-items: flex-end;
-  flex-wrap: wrap;
-}
-
-.fecha-grupo {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.fecha-grupo label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--gris-texto);
-}
-
-.fecha-grupo input[type="date"] {
-  padding: 10px 12px;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  font-size: 14px;
-  outline: none;
-  transition: all 0.3s ease;
-  background: white;
-  min-width: 150px;
-}
-
-.fecha-grupo input[type="date"]:focus {
-  border-color: var(--verde-texto);
-  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
-}
-
-.btn-limpiar {
-  padding: 10px 16px;
-  background: #ff9800;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 14px;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-}
-
-.btn-limpiar:hover {
-  background: #f57c00;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(255, 152, 0, 0.3);
 }
 
 .resultados-texto {
@@ -261,19 +207,6 @@
   }
   
   .filtro-busqueda {
-    width: 100%;
-  }
-  
-  .filtro-fechas {
-    flex-direction: column;
-    width: 100%;
-  }
-  
-  .fecha-grupo {
-    width: 100%;
-  }
-  
-  .fecha-grupo input[type="date"] {
     width: 100%;
   }
 }

@@ -36,9 +36,22 @@ document.addEventListener("DOMContentLoaded", async () => {
       const fila = document.createElement("tr");
       fila.dataset.id = p.idSolicitud;
 
+      // Colores más intensos para los estados
       let estadoColor = "";
-      if (p.estado === "APROBADA") estadoColor = "style='background-color:#e8f5e9'";
-      if (p.estado === "RECHAZADA") estadoColor = "style='background-color:#ffebee'";
+      let estadoClass = "";
+      
+      if (p.estado === "APROBADA") {
+        estadoColor = "style='background-color:#c8e6c9; color:#1b5e20; font-weight:bold;'";
+        estadoClass = "estado-aprobada";
+      }
+      if (p.estado === "RECHAZADA") {
+        estadoColor = "style='background-color:#ffcdd2; color:#b71c1c; font-weight:bold;'";
+        estadoClass = "estado-rechazada";
+      }
+      if (p.estado === "PENDIENTE") {
+        estadoColor = "style='background-color:#fff9c4; color:#f57f17; font-weight:bold;'";
+        estadoClass = "estado-pendiente";
+      }
 
       fila.innerHTML = `
         <td>${p.idSolicitud}</td>
@@ -50,7 +63,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         <td>${p.motivo}</td>
         <td>${p.notas || "-"}</td>
         <td>${p.prioridad}</td>
-        <td ${estadoColor}>${p.estado}</td>
+        <td ${estadoColor} class="${estadoClass}">${p.estado}</td>
         <td class="btn-acciones">
           ${
             p.estado === "PENDIENTE"
@@ -93,8 +106,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   function aplicarFiltros() {
     const textoBusqueda = buscador.value.toLowerCase().trim();
     const estadoSeleccionado = filtroEstado.value;
-    const fechaMin = fechaDesde.value ? new Date(fechaDesde.value) : null;
-    const fechaMax = fechaHasta.value ? new Date(fechaHasta.value) : null;
+    const fechaMin = fechaDesde.value ? new Date(fechaDesde.value + "T00:00:00") : null;
+    const fechaMax = fechaHasta.value ? new Date(fechaHasta.value + "T23:59:59") : null;
 
     const pedidosFiltrados = pedidosGlobal.filter(p => {
       // Filtro por texto (finca, ubicación o fertilizante)
@@ -106,17 +119,27 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Filtro por estado
       const coincideEstado = estadoSeleccionado === "TODOS" || p.estado === estadoSeleccionado;
 
-      // Filtro por fechas
+      // Filtro por fechas (usando fechaRequerida como alternativa temporal)
+      // ⚠️ NOTA: Idealmente debería filtrarse por fechaCreacion, pero la API no la provee
       let coincideFecha = true;
-      if (p.fechaRequerida && (fechaMin || fechaMax)) {
-        const fechaPedido = new Date(p.fechaRequerida);
+      if ((fechaMin || fechaMax) && p.fechaRequerida) {
+        // Extraer solo la fecha (YYYY-MM-DD) sin hora
+        const fechaSolicitud = new Date(p.fechaRequerida);
+        const fechaSolicitudSolo = new Date(fechaSolicitud.getFullYear(), fechaSolicitud.getMonth(), fechaSolicitud.getDate());
         
         if (fechaMin && fechaMax) {
-          coincideFecha = fechaPedido >= fechaMin && fechaPedido <= fechaMax;
+          // Filtrar por rango: entre fechaMin y fechaMax (inclusive)
+          const fechaMinSolo = new Date(fechaMin.getFullYear(), fechaMin.getMonth(), fechaMin.getDate());
+          const fechaMaxSolo = new Date(fechaMax.getFullYear(), fechaMax.getMonth(), fechaMax.getDate());
+          coincideFecha = fechaSolicitudSolo >= fechaMinSolo && fechaSolicitudSolo <= fechaMaxSolo;
         } else if (fechaMin) {
-          coincideFecha = fechaPedido >= fechaMin;
+          // Solo desde una fecha
+          const fechaMinSolo = new Date(fechaMin.getFullYear(), fechaMin.getMonth(), fechaMin.getDate());
+          coincideFecha = fechaSolicitudSolo >= fechaMinSolo;
         } else if (fechaMax) {
-          coincideFecha = fechaPedido <= fechaMax;
+          // Solo hasta una fecha
+          const fechaMaxSolo = new Date(fechaMax.getFullYear(), fechaMax.getMonth(), fechaMax.getDate());
+          coincideFecha = fechaSolicitudSolo <= fechaMaxSolo;
         }
       }
 

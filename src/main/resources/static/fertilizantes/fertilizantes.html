@@ -45,27 +45,15 @@
         <button id="btnNuevoFertilizante" class="btn-agregar">➕ Agregar Fertilizante</button>
       </div>
 
-      <!-- FILTROS DE BÚSQUEDA -->
+      <!-- BUSCADOR -->
       <div class="filtros-container">
         <div class="filtro-busqueda">
           <input 
             type="text" 
             id="buscadorFertilizantes" 
-            placeholder="🔍 Buscar por nombre o tipo..."
+            placeholder="🔍 Buscar por nombre "
             autocomplete="off"
           >
-        </div>
-        
-        <div class="filtro-fechas">
-          <div class="fecha-grupo">
-            <label for="fechaDesde">Desde:</label>
-            <input type="date" id="fechaDesde">
-          </div>
-          <div class="fecha-grupo">
-            <label for="fechaHasta">Hasta:</label>
-            <input type="date" id="fechaHasta">
-          </div>
-          <button id="btnLimpiarFiltros" class="btn-limpiar">Limpiar</button>
         </div>
         
         <span id="resultadosFiltros" class="resultados-texto"></span>
@@ -80,7 +68,6 @@
             <th>Cantidad</th>
             <th>Unidad</th>
             <th>Descripción</th>
-            <th>Fecha Registro</th>
             <th>Acciones</th>
           </tr>
         </thead>

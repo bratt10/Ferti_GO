@@ -279,20 +279,38 @@
   }
 }
 
-/* === Estados de texto === */
-.estado.aprobada {
-  color: #2e7d32;
-  font-weight: bold;
+/* === Estados de texto con colores más intensos === */
+.estado-aprobada {
+  background-color: #c8e6c9 !important;
+  color: #1b5e20 !important;
+  font-weight: bold !important;
+  padding: 8px 12px !important;
+  border-radius: 6px;
+  text-transform: uppercase;
+  font-size: 13px;
+  letter-spacing: 0.5px;
 }
 
-.estado.rechazada {
-  color: #c62828;
-  font-weight: bold;
+.estado-rechazada {
+  background-color: #ffcdd2 !important;
+  color: #b71c1c !important;
+  font-weight: bold !important;
+  padding: 8px 12px !important;
+  border-radius: 6px;
+  text-transform: uppercase;
+  font-size: 13px;
+  letter-spacing: 0.5px;
 }
 
-.estado.pendiente {
-  color: #b8860b;
-  font-weight: bold;
+.estado-pendiente {
+  background-color: #fff9c4 !important;
+  color: #f57f17 !important;
+  font-weight: bold !important;
+  padding: 8px 12px !important;
+  border-radius: 6px;
+  text-transform: uppercase;
+  font-size: 13px;
+  letter-spacing: 0.5px;
 }
 
 /* Responsive */

@@ -7,9 +7,6 @@ const total = document.getElementById("totalFertilizantes");
 
 // Elementos de filtros
 const buscador = document.getElementById("buscadorFertilizantes");
-const fechaDesde = document.getElementById("fechaDesde");
-const fechaHasta = document.getElementById("fechaHasta");
-const btnLimpiarFiltros = document.getElementById("btnLimpiarFiltros");
 const resultadosFiltros = document.getElementById("resultadosFiltros");
 
 const API_URL = "http://localhost:8080/fertilizante";
@@ -46,13 +43,6 @@ function renderizarFertilizantes(fertilizantes) {
   }
 
   fertilizantes.forEach(f => {
-    // Formatear fecha si existe
-    let fechaFormateada = "-";
-    if (f.fechaRegistro) {
-      const fecha = new Date(f.fechaRegistro);
-      fechaFormateada = fecha.toLocaleDateString('es-ES');
-    }
-
     const row = `<tr>
       <td>${f.id}</td>
       <td>${f.nombre}</td>
@@ -60,7 +50,6 @@ function renderizarFertilizantes(fertilizantes) {
       <td>${f.cantidad}</td>
       <td>${f.unidad}</td>
       <td>${f.descripcion || ""}</td>
-      <td>${fechaFormateada}</td>
       <td>
         <button class="btn-edit" onclick="editarFertilizante(${f.id})">✏️ Editar</button>
         <button class="btn-delete" onclick="eliminarFertilizante(${f.id})">🗑️ Eliminar</button>
@@ -76,11 +65,7 @@ async function cargarFertilizantes() {
     const res = await fetch(API_URL);
     const data = await res.json();
     
-    // Agregar fecha actual si no existe (para demostración)
-    fertilizantesGlobal = data.map(f => ({
-      ...f,
-      fechaRegistro: f.fechaRegistro || new Date().toISOString()
-    }));
+    fertilizantesGlobal = data;
     
     renderizarFertilizantes(fertilizantesGlobal);
     total.textContent = fertilizantesGlobal.length;
@@ -91,33 +76,15 @@ async function cargarFertilizantes() {
   }
 }
 
-// ===== FUNCIONES DE FILTRADO =====
+// ===== FUNCIÓN DE FILTRADO =====
 function aplicarFiltros() {
   const textoBusqueda = buscador.value.toLowerCase().trim();
-  const fechaMin = fechaDesde.value ? new Date(fechaDesde.value) : null;
-  const fechaMax = fechaHasta.value ? new Date(fechaHasta.value) : null;
 
   const fertilizantesFiltrados = fertilizantesGlobal.filter(f => {
     // Filtro por texto (nombre o tipo)
-    const coincideTexto = textoBusqueda === "" || 
+    return textoBusqueda === "" || 
       f.nombre.toLowerCase().includes(textoBusqueda) ||
       f.tipo.toLowerCase().includes(textoBusqueda);
-
-    // Filtro por fechas
-    let coincideFecha = true;
-    if (f.fechaRegistro && (fechaMin || fechaMax)) {
-      const fechaFertilizante = new Date(f.fechaRegistro);
-      
-      if (fechaMin && fechaMax) {
-        coincideFecha = fechaFertilizante >= fechaMin && fechaFertilizante <= fechaMax;
-      } else if (fechaMin) {
-        coincideFecha = fechaFertilizante >= fechaMin;
-      } else if (fechaMax) {
-        coincideFecha = fechaFertilizante <= fechaMax;
-      }
-    }
-
-    return coincideTexto && coincideFecha;
   });
 
   renderizarFertilizantes(fertilizantesFiltrados);
@@ -125,7 +92,7 @@ function aplicarFiltros() {
 }
 
 function actualizarContadorResultados(encontrados, total) {
-  const hayFiltros = buscador.value.trim() !== "" || fechaDesde.value !== "" || fechaHasta.value !== "";
+  const hayFiltros = buscador.value.trim() !== "";
   
   if (hayFiltros) {
     resultadosFiltros.textContent = `${encontrados} de ${total} fertilizantes`;
@@ -135,18 +102,8 @@ function actualizarContadorResultados(encontrados, total) {
   }
 }
 
-function limpiarFiltros() {
-  buscador.value = "";
-  fechaDesde.value = "";
-  fechaHasta.value = "";
-  aplicarFiltros();
-}
-
-// Event listeners para filtros
+// Event listener para filtro
 buscador.addEventListener("input", aplicarFiltros);
-fechaDesde.addEventListener("change", aplicarFiltros);
-fechaHasta.addEventListener("change", aplicarFiltros);
-btnLimpiarFiltros.addEventListener("click", limpiarFiltros);
 
 // Guardar / Editar fertilizante
 form.addEventListener("submit", async (e) => {
@@ -156,8 +113,7 @@ form.addEventListener("submit", async (e) => {
     tipo: document.getElementById("tipo").value,
     cantidad: parseInt(document.getElementById("cantidad").value),
     unidad: document.getElementById("unidad").value,
-    descripcion: document.getElementById("descripcion").value,
-    fechaRegistro: new Date().toISOString() // Agregar fecha actual
+    descripcion: document.getElementById("descripcion").value
   };
 
   try {
@@ -181,7 +137,7 @@ form.addEventListener("submit", async (e) => {
 
     modal.style.display = "none";
     form.reset();
-    limpiarFiltros(); // Limpiar filtros al guardar
+    buscador.value = ""; // Limpiar búsqueda
     await cargarFertilizantes();
   } catch (error) {
     console.error("Error guardando fertilizante:", error);
@@ -219,7 +175,7 @@ async function eliminarFertilizante(id) {
         method: "DELETE"
       });
       alert("✅ Fertilizante eliminado correctamente");
-      limpiarFiltros(); // Limpiar filtros al eliminar
+      buscador.value = ""; // Limpiar búsqueda
       await cargarFertilizantes();
     } catch (error) {
       console.error("Error eliminando fertilizante:", error);
