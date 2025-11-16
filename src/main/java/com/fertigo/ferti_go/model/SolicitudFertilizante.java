@@ -3,6 +3,7 @@ package com.fertigo.ferti_go.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -22,6 +23,10 @@ public class SolicitudFertilizante {
     private String notas;
     private String prioridad;
 
+    // ⭐ Cambiado a nullable = true para soportar registros antiguos
+    @Column(name = "fecha_solicitud", updatable = false)
+    private LocalDateTime fechaSolicitud;
+
     @Enumerated(EnumType.STRING)
     private EstadoSolicitud estado = EstadoSolicitud.PENDIENTE;
 
@@ -40,6 +45,8 @@ public class SolicitudFertilizante {
         if (this.fechaRequerida == null) {
             this.fechaRequerida = LocalDate.now();
         }
+        // Asignar fecha de solicitud automáticamente
+        this.fechaSolicitud = LocalDateTime.now();
     }
 
     public EstadoSolicitud getEstado() {
