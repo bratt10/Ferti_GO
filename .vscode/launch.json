@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-FertiGoApplication<ferti_go>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.fertigo.ferti_go.FertiGoApplication",
+            "projectName": "ferti_go",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
