@@ -125,7 +125,7 @@ form.addEventListener("submit", async (e) => {
       // Editar
       await fetch(`${API_URL}/${editandoId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json; charset=UTF-8" },
         body: JSON.stringify(nuevo)
       });
       alert("✅ Fertilizante actualizado correctamente");
@@ -133,7 +133,7 @@ form.addEventListener("submit", async (e) => {
       // Nuevo
       await fetch(`${API_URL}/${ID_ADMIN}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json; charset=UTF-8" },
         body: JSON.stringify(nuevo)
       });
       alert("✅ Fertilizante creado correctamente");

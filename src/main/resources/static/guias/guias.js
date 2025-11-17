@@ -4,7 +4,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnImprimir = document.getElementById("btnImprimir");
   const resultado = document.getElementById("resultado");
 
-  const BASE = "http://localhost:8080/solicitudFertilizante";
+  const BASE_URL =
+    window.location.hostname === "localhost"
+      ? "http://localhost:8080"
+      : "https://fertigo-production.up.railway.app";
+
+  const BASE = `${BASE_URL}/solicitudFertilizante`;
+
   let pedidoActual = null;
 
   btnBuscar.addEventListener("click", async () => {
