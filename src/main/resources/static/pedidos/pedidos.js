@@ -17,6 +17,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   let pedidosGlobal = []; // Array global para filtrado
 
+  // Función auxiliar para extraer fecha sin hora
+  function obtenerFechaSolo(fechaString) {
+    if (!fechaString) return null;
+    const fecha = new Date(fechaString);
+    return new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate());
+  }
+
   // Renderizar pedidos en tabla
   function renderizarPedidos(pedidos) {
     tablaPedidos.innerHTML = "";
@@ -119,28 +126,33 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Filtro por estado
       const coincideEstado = estadoSeleccionado === "TODOS" || p.estado === estadoSeleccionado;
 
-      // Filtro por fechas (usando fechaRequerida como alternativa temporal)
-      // ⚠️ NOTA: Idealmente debería filtrarse por fechaCreacion, pero la API no la provee
+      // ✅ FILTRO POR FECHA DE CREACIÓN (no por fechaRequerida)
       let coincideFecha = true;
-      if ((fechaMin || fechaMax) && p.fechaRequerida) {
-        // Extraer solo la fecha (YYYY-MM-DD) sin hora
-        const fechaSolicitud = new Date(p.fechaRequerida);
-        const fechaSolicitudSolo = new Date(fechaSolicitud.getFullYear(), fechaSolicitud.getMonth(), fechaSolicitud.getDate());
+      
+      // IMPORTANTE: Ajusta 'fechaCreacion' al nombre exacto del campo en tu API
+      // Posibles nombres: fechaCreacion, fechaSolicitud, createdAt, fecha, fechaRegistro
+      const campoFecha = p.fechaCreacion || p.fechaSolicitud || p.createdAt || p.fecha;
+      
+      if ((fechaMin || fechaMax) && campoFecha) {
+        const fechaSolicitud = obtenerFechaSolo(campoFecha);
         
         if (fechaMin && fechaMax) {
           // Filtrar por rango: entre fechaMin y fechaMax (inclusive)
-          const fechaMinSolo = new Date(fechaMin.getFullYear(), fechaMin.getMonth(), fechaMin.getDate());
-          const fechaMaxSolo = new Date(fechaMax.getFullYear(), fechaMax.getMonth(), fechaMax.getDate());
-          coincideFecha = fechaSolicitudSolo >= fechaMinSolo && fechaSolicitudSolo <= fechaMaxSolo;
+          const fechaMinSolo = obtenerFechaSolo(fechaMin);
+          const fechaMaxSolo = obtenerFechaSolo(fechaMax);
+          coincideFecha = fechaSolicitud >= fechaMinSolo && fechaSolicitud <= fechaMaxSolo;
         } else if (fechaMin) {
           // Solo desde una fecha
-          const fechaMinSolo = new Date(fechaMin.getFullYear(), fechaMin.getMonth(), fechaMin.getDate());
-          coincideFecha = fechaSolicitudSolo >= fechaMinSolo;
+          const fechaMinSolo = obtenerFechaSolo(fechaMin);
+          coincideFecha = fechaSolicitud >= fechaMinSolo;
         } else if (fechaMax) {
           // Solo hasta una fecha
-          const fechaMaxSolo = new Date(fechaMax.getFullYear(), fechaMax.getMonth(), fechaMax.getDate());
-          coincideFecha = fechaSolicitudSolo <= fechaMaxSolo;
+          const fechaMaxSolo = obtenerFechaSolo(fechaMax);
+          coincideFecha = fechaSolicitud <= fechaMaxSolo;
         }
+      } else if (fechaMin || fechaMax) {
+        // Si hay filtro de fecha pero el pedido no tiene fecha de creación, excluirlo
+        coincideFecha = false;
       }
 
       return coincideTexto && coincideEstado && coincideFecha;

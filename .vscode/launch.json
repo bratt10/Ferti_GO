@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "FertiGoApplication",
+            "request": "launch",
+            "mainClass": "com.fertigo.ferti_go.FertiGoApplication",
+            "projectName": ""
+        },
+        {
+            "type": "java",
             "name": "Spring Boot-FertiGoApplication<ferti_go>",
             "request": "launch",
             "cwd": "${workspaceFolder}",
