@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("loginForm");
+  const mensajeDiv = document.getElementById("mensaje");
 
   loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -9,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const password = document.getElementById("password").value.trim();
 
     if (!email || !password) {
-      alert("❌ Completa todos los campos.");
+      mostrarMensaje("❌ Completa todos los campos.", "error");
       return;
     }
 
@@ -18,9 +19,16 @@ document.addEventListener("DOMContentLoaded", () => {
       contraseña: password
     };
 
+    // Mostrar loading
+    mostrarMensaje("⏳ Iniciando sesión...", "info");
+
     try {
-      // Llamada al backend
-      const response = await fetch("http://localhost:8080/usuario/login", {
+      // Usar la URL de Railway (o localhost si estás en desarrollo)
+      const API_URL = window.location.hostname === 'localhost' 
+        ? 'http://localhost:8080' 
+        : 'https://fertigo-production.up.railway.app';
+
+      const response = await fetch(`${API_URL}/usuario/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(datos)
@@ -28,16 +36,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (response.ok) {
         const usuario = await response.json();
-        // Redirigir al dashboard
-        window.location.href = "../dashboard/dashboard.html";  
+        mostrarMensaje("✅ ¡Inicio de sesión exitoso!", "success");
+        
+        // Guardar datos del usuario si es necesario
+        // localStorage.setItem('usuario', JSON.stringify(usuario));
+        
+        // Redirigir al dashboard después de 1 segundo
+        setTimeout(() => {
+          window.location.href = "/dashboard/dashboard.html";
+        }, 1000);
       } else if (response.status === 401) {
-        alert("⚠️ Credenciales inválidas o no tienes permisos.");
+        mostrarMensaje("⚠️ Credenciales inválidas o no tienes permisos.", "error");
       } else {
         const errorText = await response.text();
-        alert("❌ Error: " + errorText);
+        mostrarMensaje("❌ Error: " + errorText, "error");
       }
     } catch (err) {
-      alert("🚨 Error de conexión con el servidor: " + err.message);
+      console.error("Error de conexión:", err);
+      mostrarMensaje("🚨 Error de conexión con el servidor: " + err.message, "error");
     }
   });
+
+  function mostrarMensaje(texto, tipo) {
+    mensajeDiv.textContent = texto;
+    mensajeDiv.className = tipo;
+    mensajeDiv.style.display = "block";
+  }
 });
