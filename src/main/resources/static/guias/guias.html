@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ferti-Go | Guía de Envío</title>
+  <link rel="stylesheet" href="guias.css">
+  <script defer src="guias.js"></script>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h2 class="logo">🌱 Ferti-Go</h2>
+    <nav>
+      <a href="../dashboard/dashboard.html">📊 Dashboard</a>
+      <a href="../usuarios/usuarios.html">👤 Usuarios</a>
+      <a href="../fertilizantes/fertilizantes.html">🧪 Fertilizantes</a>
+      <a href="../pedidos/pedidos.html">📦 Pedidos</a>
+      <a href="../guias/guias.html" class="active">📑 Generar Guía</a>
+      <a href="../novedades/novedades.html">📰 Novedades</a>
+      <a href="../config/config.html">⚙ Configuración</a>
+      <a href="../manual/manual.html">📘 Manual</a>
+    </nav>
+    <button class="logout" onclick="cerrarSesion()">Cerrar Sesión</button>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content">
+    <header>
+      <h1>Generar Guía de Envío</h1>
+      <p>Busca un pedido por su ID para generar su guía de despacho en formato PDF.</p>
+    </header>
+
+    <section class="busqueda">
+      <input type="number" id="inputId" placeholder="Ingrese ID de pedido">
+      <button id="btnBuscar">Buscar Pedido</button>
+      <button id="btnImprimir" disabled>Imprimir Guía</button>
+    </section>
+
+    <section id="resultado" class="resultado"></section>
+    <script src="../i18n.js"></script>
+  <script defer src="guias.js"></script>
+  </main>
+</body>
+</html>
