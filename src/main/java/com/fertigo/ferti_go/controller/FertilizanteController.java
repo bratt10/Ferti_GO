@@ -21,7 +21,9 @@ public class FertilizanteController {
 
     // Crear fertilizante (solo Admin)
     @PostMapping("/{idUsuario}")
-    public ResponseEntity<?> agregarFertilizante(@RequestBody Fertilizante fertilizante, @RequestParam Long idUsuario) {
+    public ResponseEntity<?> agregarFertilizante(
+            @RequestBody Fertilizante fertilizante, 
+            @PathVariable Long idUsuario) {
         try {
             UsuarioModel usuario = usuarioService.obtenerUsuario(idUsuario);
             Fertilizante nuevo = fertilizanteService.AgregarFertilizante(fertilizante, usuario);
@@ -30,6 +32,7 @@ public class FertilizanteController {
             return ResponseEntity.status(403).body("ERROR: " + e.getMessage());
         }
     }
+
 
     // Ver todos
     @GetMapping
