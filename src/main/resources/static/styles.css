@@ -116,16 +116,13 @@ main {
 /* Animación que cambia el fondo */
 @keyframes cambioFondo {
   0% {
-    background-image: url('Imagen 01.webp');
+    background-image: url('Inicio/Imagen01.webp');
   }
   33% {
-    background-image: url('imagen 02.jpg');
+    background-image: url('Inicio/imagen02.jpg');
   }
   66% {
-    background-image: url('imagen 03.jpg');
-  }
-  100% {
-    background-image: url('imagen 4.png');
+    background-image: url('Inicio/imagen03.jpg');
   }
 }
 
