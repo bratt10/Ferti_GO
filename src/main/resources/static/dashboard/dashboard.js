@@ -1,10 +1,15 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  const API_USUARIOS = "http://localhost:8080/usuario";
-  const API_FERTILIZANTES = "http://localhost:8080/fertilizante";
-  const API_SOLICITUDES = "http://localhost:8080/solicitudFertilizante";
+
+  const BASE_URL =
+    window.location.hostname === "localhost"
+      ? "http://localhost:8080"
+      : "https://fertigo-production.up.railway.app";
+
+  const API_USUARIOS = `${BASE_URL}/usuario`;
+  const API_FERTILIZANTES = `${BASE_URL}/fertilizante`;
+  const API_SOLICITUDES = `${BASE_URL}/solicitudFertilizante`;
 
   try {
-    // --- Obtener datos reales del backend ---
     const [resUsuarios, resFertilizantes, resSolicitudes] = await Promise.all([
       fetch(API_USUARIOS),
       fetch(API_FERTILIZANTES),
@@ -15,7 +20,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const fertilizantes = await resFertilizantes.json();
     const solicitudes = await resSolicitudes.json();
 
-    // --- Procesar los datos ---
     const datosGenerales = {
       usuarios: usuarios.length,
       fertilizantes: fertilizantes.length,
@@ -29,16 +33,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       rechazadas: solicitudes.filter(s => s.estado === "RECHAZADA").length
     };
 
-    // --- Actualizar las tarjetas del Dashboard ---
     document.getElementById("usuariosActivos").textContent = datosGenerales.usuarios;
     document.getElementById("fertilizantes").textContent = datosGenerales.fertilizantes;
     document.getElementById("solicitudesPendientes").textContent = estados.pendientes;
     document.getElementById("entregas").textContent = datosGenerales.entregas;
 
-    // --- Gráfico de Pastel (Estados de Solicitudes) ---
-    const ctxPie = document.getElementById('pieChart').getContext('2d');
+    const ctxPie = document.getElementById("pieChart").getContext("2d");
     new Chart(ctxPie, {
-      type: 'pie',
+      type: "pie",
       data: {
         labels: ["Pendientes", "Aprobadas", "Rechazadas"],
         datasets: [{
@@ -48,10 +50,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
 
-    // --- Gráfico de Barras (Datos Generales) ---
-    const ctxBar = document.getElementById('barChart').getContext('2d');
+    const ctxBar = document.getElementById("barChart").getContext("2d");
     new Chart(ctxBar, {
-      type: 'bar',
+      type: "bar",
       data: {
         labels: ["Usuarios", "Fertilizantes", "Solicitudes", "Entregas"],
         datasets: [{
@@ -74,14 +75,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.log("Dashboard conectado correctamente con el backend");
 
   } catch (err) {
-    console.error(" Error al conectar el Dashboard:", err);
+    console.error("Error al conectar el Dashboard:", err);
     alert("Error al cargar datos del Dashboard.");
   }
 });
+
 function cerrarSesion() {
-  if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
-    localStorage.removeItem('usuario');
-    localStorage.clear(); // Limpiar todo el localStorage
-    window.location.href = '../login/login.html';
+  if (confirm("¿Estás seguro de que deseas cerrar sesión?")) {
+    localStorage.clear();
+    window.location.href = "../login/Login.html";
   }
 }

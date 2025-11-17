@@ -23,28 +23,36 @@ document.addEventListener("DOMContentLoaded", () => {
     mostrarMensaje("⏳ Iniciando sesión...", "info");
 
     try {
-      // Usar la URL de Railway (o localhost si estás en desarrollo)
-      const API_URL = window.location.hostname === 'localhost' 
-        ? 'http://localhost:8080' 
-        : 'https://fertigo-production.up.railway.app';
+      // Detectar si estamos en local o en Railway
+      const API_URL =
+        window.location.hostname === "localhost"
+          ? "http://localhost:8080"
+          : "https://fertigo-production.up.railway.app";
 
       const response = await fetch(`${API_URL}/usuario/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(datos)
+        body: JSON.stringify(datos),
       });
 
       if (response.ok) {
         const usuario = await response.json();
+
         mostrarMensaje("✅ ¡Inicio de sesión exitoso!", "success");
-        
-        // Guardar datos del usuario si es necesario
-        // localStorage.setItem('usuario', JSON.stringify(usuario));
-        
-        // Redirigir al dashboard después de 1 segundo
+
+        // Guardar usuario si lo necesitas
+        // localStorage.setItem("usuario", JSON.stringify(usuario));
+
+        // Redireccionar correctamente según entorno
         setTimeout(() => {
-          window.location.href = "/dashboard/dashboard.html";
+          const BASE_URL =
+            window.location.hostname === "localhost"
+              ? "http://localhost:8080"
+              : "https://fertigo-production.up.railway.app";
+
+          window.location.href = `${BASE_URL}/dashboard/dashboard.html`;
         }, 1000);
+
       } else if (response.status === 401) {
         mostrarMensaje("⚠️ Credenciales inválidas o no tienes permisos.", "error");
       } else {

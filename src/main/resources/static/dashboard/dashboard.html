@@ -7,7 +7,10 @@
   <link rel="stylesheet" href="dashboard.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-  <!-- Sidebar --> 
+
+<body>
+
+  <!-- SIDEBAR -->
   <aside class="sidebar">
     <h2 class="logo">🌱 Ferti-Go</h2>
     <nav>
@@ -20,17 +23,18 @@
       <a href="../config/config.html">⚙ Configuraciones</a>
       <a href="../manual/manual.html">📘 Manual</a>
     </nav>
+
     <a href="../login/Login.html" class="logout">Cerrar Sesión</a>
   </aside>
 
-  <!-- Main -->
+  <!-- MAIN -->
   <main class="main-content">
     <header>
         <h1>Dashboard</h1>
         <p>Resumen general del sistema</p> 
     </header>
 
-    <!-- Tarjetas de resumen -->
+    <!-- CARDS -->
     <section class="cards">
       <div class="card">
         <h3>Usuarios Activos</h3>
@@ -50,12 +54,13 @@
       </div>
     </section>
 
-    <!-- Gráficos -->
+    <!-- CHARTS -->
     <section class="charts">
       <div class="chart-container">
         <h2>Estado de las Solicitudes</h2>
         <canvas id="pieChart"></canvas>
       </div>
+      
       <div class="chart-container">
         <h2>Datos Generales del Sistema</h2>
         <canvas id="barChart"></canvas>
@@ -63,7 +68,6 @@
     </section>
   </main>
 
-  <script src="../i18n.js"></script>
   <script src="dashboard.js"></script>
 </body>
 </html>

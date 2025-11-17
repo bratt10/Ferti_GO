@@ -12,7 +12,6 @@ body {
   position: relative;
 }
 
-/* ANULAR fondo de styles.css */
 body.login-page {
   background: none !important;
 }

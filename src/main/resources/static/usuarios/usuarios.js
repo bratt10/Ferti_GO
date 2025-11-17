@@ -1,6 +1,8 @@
 // usuarios.js
 document.addEventListener("DOMContentLoaded", () => {
-  const BASE = "http://localhost:8080/usuario"; // ajústalo si tu API está en otra ruta
+const BASE = window.location.hostname === "localhost"
+  ? "http://localhost:8080/usuario"
+  : "https://fertigo-production.up.railway.app/usuario";
 
   // DOM
   const tablaUsuarios = document.getElementById("tablaUsuarios");
