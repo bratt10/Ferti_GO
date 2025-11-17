@@ -131,7 +131,7 @@ form.addEventListener("submit", async (e) => {
       alert("✅ Fertilizante actualizado correctamente");
     } else {
       // Nuevo
-      await fetch(`${API_URL}/${ID_ADMIN}`, {
+      await fetch(`${API_URL}?idUsuario=${ID_ADMIN}`, {
         method: "POST",
         headers: { "Content-Type": "application/json; charset=UTF-8" },
         body: JSON.stringify(nuevo)

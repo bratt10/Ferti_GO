@@ -21,7 +21,7 @@ public class FertilizanteController {
 
     // Crear fertilizante (solo Admin)
     @PostMapping("/{idUsuario}")
-    public ResponseEntity<?> agregarFertilizante(@RequestBody Fertilizante fertilizante, @PathVariable Long idUsuario) {
+    public ResponseEntity<?> agregarFertilizante(@RequestBody Fertilizante fertilizante, @RequestParam Long idUsuario) {
         try {
             UsuarioModel usuario = usuarioService.obtenerUsuario(idUsuario);
             Fertilizante nuevo = fertilizanteService.AgregarFertilizante(fertilizante, usuario);
