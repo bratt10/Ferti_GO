@@ -4,20 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iniciar Sesión | Ferti-Go</title>
-  <link rel="stylesheet" href="/styles.css">
-  <link rel="stylesheet" href="/login/login.css">
+  <!-- Rutas relativas que funcionan en local Y en Railway -->
+  <link rel="stylesheet" href="Login.css">
+  <link rel="stylesheet" href="../styles.css">
 </head>
 <body class="login-page">
   <header>  
     <nav class="container">
-      <div class="logo">🌱 Ferti-Go</div>
+      <div class="logo">Ferti-Go</div>
       <ul class="nav-links">
-        <li><a href="/index.html#inicio">Inicio</a></li>
-        <li><a href="/index.html#servicios">Sobre el Software</a></li>
-        <li><a href="/index.html#como-funciona">Funcionalidades</a></li>
-        <li><a href="/index.html#contacto">Solicitar Fertilizante</a></li>
+        <li><a href="../index.html#inicio">Inicio</a></li>
+        <li><a href="../index.html#servicios">Sobre el Software</a></li>
+        <li><a href="../index.html#como-funciona">Funcionalidades</a></li>
+        <li><a href="../index.html#contacto">Solicitar Fertilizante</a></li>
       </ul>
-      <a href="/login/Login.html" class="btn-login">Iniciar Sesión</a>
+      <a href="Login.html" class="btn-login">Iniciar Sesión</a>
     </nav>
   </header>
 
@@ -36,6 +37,8 @@
       <div id="mensaje"></div>
     </div>
   </div>
-  <script src="/login/login.js"></script>
+  
+  <!-- Ruta relativa al JS -->
+  <script src="Login.js"></script>
 </body>
 </html>
