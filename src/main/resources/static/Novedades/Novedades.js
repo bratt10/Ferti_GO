@@ -2,17 +2,24 @@ document.addEventListener("DOMContentLoaded", async () => {
   const tabla = document.getElementById("tablaNovedades");
   const total = document.getElementById("totalNovedades");
 
-  // Elementos de filtros
   const fechaDesde = document.getElementById("fechaDesde");
   const fechaHasta = document.getElementById("fechaHasta");
   const btnLimpiarFiltros = document.getElementById("btnLimpiarFiltros");
   const resultadosFiltros = document.getElementById("resultadosFiltros");
 
-  const API_URL = "http://localhost:8080/novedades";
+  // BASE DINÁMICA PARA PRODUCCIÓN Y LOCALHOST
+  const BASE_URL =
+    window.location.hostname === "localhost"
+      ? "http://localhost:8080"
+      : "https://fertigo-production.up.railway.app";
 
-  let novedadesGlobal = []; // Array global para filtrado
+  const API_URL = `${BASE_URL}/novedades`;
 
-  // Renderizar novedades en tabla
+  let novedadesGlobal = [];
+
+  /* ==========================
+        RENDER TABLA
+     ========================== */
   function renderNovedades(lista) {
     tabla.innerHTML = "";
 
@@ -22,17 +29,16 @@ document.addEventListener("DOMContentLoaded", async () => {
           <td colspan="7" class="no-resultados">
             No se encontraron novedades con los criterios seleccionados
           </td>
-        </tr>
-      `;
+        </tr>`;
       return;
     }
 
     lista.forEach((nov) => {
-      // Formatear fecha si existe
       let fechaFormateada = "-";
+
       if (nov.fechaEnvio) {
         const fecha = new Date(nov.fechaEnvio);
-        fechaFormateada = fecha.toLocaleDateString('es-ES');
+        fechaFormateada = fecha.toLocaleDateString("es-ES");
       }
 
       const fila = document.createElement("tr");
@@ -48,12 +54,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         </td>
       `;
 
-      // Botón eliminar
-      const btnEliminar = fila.querySelector(".btn-eliminar");
-      btnEliminar.addEventListener("click", async () => {
+      fila.querySelector(".btn-eliminar").addEventListener("click", async () => {
         if (confirm("¿Seguro que deseas eliminar esta novedad?")) {
           await eliminarNovedad(nov.idNovedad);
-          // Recargar y mantener filtros
           await cargarNovedades();
           aplicarFiltros();
         }
@@ -63,17 +66,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // Cargar todas las novedades
+  /* ==========================
+        CARGAR DATOS
+     ========================== */
   async function cargarNovedades() {
     try {
       const response = await fetch(API_URL);
-      if (!response.ok) throw new Error("Error al obtener las novedades");
+      if (!response.ok) throw new Error("Error al obtener novedades");
+
       const novedades = await response.json();
-      
-      // Agregar fecha actual si no existe (para demostración)
-      novedadesGlobal = novedades.map(n => ({
+
+      novedadesGlobal = novedades.map((n) => ({
         ...n,
-        fechaEnvio: n.fechaEnvio || new Date().toISOString()
+        fechaEnvio: n.fechaEnvio || new Date().toISOString(),
       }));
 
       total.textContent = novedadesGlobal.length;
@@ -85,37 +90,36 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // ===== FUNCIÓN DE FILTRADO =====
+  /* ==========================
+        FILTROS POR FECHA
+     ========================== */
   function aplicarFiltros() {
     const fechaMin = fechaDesde.value ? new Date(fechaDesde.value) : null;
     const fechaMax = fechaHasta.value ? new Date(fechaHasta.value) : null;
 
-    const novedadesFiltradas = novedadesGlobal.filter(n => {
-      // Filtro por fechas
-      let coincideFecha = true;
-      if (n.fechaEnvio && (fechaMin || fechaMax)) {
-        const fechaNovedad = new Date(n.fechaEnvio);
-        
-        if (fechaMin && fechaMax) {
-          coincideFecha = fechaNovedad >= fechaMin && fechaNovedad <= fechaMax;
-        } else if (fechaMin) {
-          coincideFecha = fechaNovedad >= fechaMin;
-        } else if (fechaMax) {
-          coincideFecha = fechaNovedad <= fechaMax;
-        }
+    const filtradas = novedadesGlobal.filter((n) => {
+      if (!n.fechaEnvio) return true;
+
+      const fecha = new Date(n.fechaEnvio);
+      let coincide = true;
+
+      if (fechaMin && fechaMax) {
+        coincide = fecha >= fechaMin && fecha <= fechaMax;
+      } else if (fechaMin) {
+        coincide = fecha >= fechaMin;
+      } else if (fechaMax) {
+        coincide = fecha <= fechaMax;
       }
 
-      return coincideFecha;
+      return coincide;
     });
 
-    renderNovedades(novedadesFiltradas);
-    actualizarContadorResultados(novedadesFiltradas.length, novedadesGlobal.length);
+    renderNovedades(filtradas);
+    actualizarContadorResultados(filtradas.length, novedadesGlobal.length);
   }
 
   function actualizarContadorResultados(encontrados, total) {
-    const hayFiltros = fechaDesde.value !== "" || fechaHasta.value !== "";
-    
-    if (hayFiltros) {
+    if (fechaDesde.value || fechaHasta.value) {
       resultadosFiltros.textContent = `${encontrados} de ${total} novedades`;
       resultadosFiltros.style.display = "inline-block";
     } else {
@@ -123,24 +127,26 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  function limpiarFiltros() {
+  btnLimpiarFiltros.addEventListener("click", () => {
     fechaDesde.value = "";
     fechaHasta.value = "";
     aplicarFiltros();
-  }
+  });
 
-  // Event listeners para filtros
   fechaDesde.addEventListener("change", aplicarFiltros);
   fechaHasta.addEventListener("change", aplicarFiltros);
-  btnLimpiarFiltros.addEventListener("click", limpiarFiltros);
 
-  // Eliminar una novedad
+  /* ==========================
+        ELIMINAR NOVEDAD
+     ========================== */
   async function eliminarNovedad(id) {
     try {
       const response = await fetch(`${API_URL}/${id}`, {
         method: "DELETE",
       });
+
       if (!response.ok) throw new Error("Error al eliminar novedad");
+
       alert("✅ Novedad eliminada correctamente");
     } catch (error) {
       console.error("Error:", error);
@@ -152,10 +158,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   cargarNovedades();
 });
 
+/* ==========================
+      CERRAR SESIÓN
+   ========================== */
 function cerrarSesion() {
-  if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
-    localStorage.removeItem('usuario');
+  if (confirm("¿Estás seguro de que deseas cerrar sesión?")) {
     localStorage.clear();
-    window.location.href = '../login/login.html';
+    window.location.href = "../login/login.html";
   }
 }

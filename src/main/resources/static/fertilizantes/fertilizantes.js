@@ -5,15 +5,19 @@ const form = document.getElementById("formFertilizante");
 const tabla = document.getElementById("tablaFertilizantes");
 const total = document.getElementById("totalFertilizantes");
 
-// Elementos de filtros
 const buscador = document.getElementById("buscadorFertilizantes");
 const resultadosFiltros = document.getElementById("resultadosFiltros");
 
-const API_URL = "http://localhost:8080/fertilizante";
-const ID_ADMIN = 1; // Cambia según tu admin en BD
+const BASE_URL =
+  window.location.hostname === "localhost"
+    ? "http://localhost:8080"
+    : "https://fertigo-production.up.railway.app";
+
+const API_URL = `${BASE_URL}/fertilizante`;
+const ID_ADMIN = 1;
 
 let editandoId = null;
-let fertilizantesGlobal = []; // Array global para filtrado
+let fertilizantesGlobal = [];
 
 // Abrir modal
 btnNuevo.addEventListener("click", () => {
@@ -22,92 +26,90 @@ btnNuevo.addEventListener("click", () => {
   form.reset();
   modal.style.display = "flex";
 });
+
+// Cerrar modal
 cerrar.addEventListener("click", () => {
   modal.style.display = "none";
   form.reset();
 });
 
-// Renderizar fertilizantes en tabla
-function renderizarFertilizantes(fertilizantes) {
+// Render
+function renderizarFertilizantes(lista) {
   tabla.innerHTML = "";
-  
-  if (fertilizantes.length === 0) {
+
+  if (lista.length === 0) {
     tabla.innerHTML = `
       <tr>
         <td colspan="8" class="no-resultados">
           No se encontraron fertilizantes con los criterios seleccionados
         </td>
-      </tr>
-    `;
+      </tr>`;
     return;
   }
 
-  fertilizantes.forEach(f => {
-    const row = `<tr>
-      <td>${f.id}</td>
-      <td>${f.nombre}</td>
-      <td>${f.tipo}</td>
-      <td>${f.cantidad}</td>
-      <td>${f.unidad}</td>
-      <td>${f.descripcion || ""}</td>
-      <td>
-        <button class="btn-edit" onclick="editarFertilizante(${f.id})">✏️ Editar</button>
-        <button class="btn-delete" onclick="eliminarFertilizante(${f.id})">🗑️ Eliminar</button>
-      </td>
-    </tr>`;
-    tabla.innerHTML += row;
+  lista.forEach(f => {
+    tabla.innerHTML += `
+      <tr>
+        <td>${f.id}</td>
+        <td>${f.nombre}</td>
+        <td>${f.tipo}</td>
+        <td>${f.cantidad}</td>
+        <td>${f.unidad}</td>
+        <td>${f.descripcion || ""}</td>
+        <td>
+          <button class="btn-editar" onclick="editarFertilizante(${f.id})">✏️ Editar</button>
+          <button class="btn-eliminar" onclick="eliminarFertilizante(${f.id})">🗑️ Eliminar</button>
+        </td>
+      </tr>`;
   });
 }
 
-// Cargar fertilizantes
+// Cargar
 async function cargarFertilizantes() {
   try {
     const res = await fetch(API_URL);
     const data = await res.json();
-    
+
     fertilizantesGlobal = data;
-    
-    renderizarFertilizantes(fertilizantesGlobal);
-    total.textContent = fertilizantesGlobal.length;
-    actualizarContadorResultados(fertilizantesGlobal.length, fertilizantesGlobal.length);
-  } catch (error) {
-    console.error("Error cargando fertilizantes:", error);
-    alert("Error al cargar los fertilizantes.");
+    total.textContent = data.length;
+
+    renderizarFertilizantes(data);
+    actualizarContadorResultados(data.length, data.length);
+  } catch (e) {
+    alert("Error al cargar fertilizantes.");
   }
 }
 
-// ===== FUNCIÓN DE FILTRADO =====
+// Filtro
 function aplicarFiltros() {
-  const textoBusqueda = buscador.value.toLowerCase().trim();
+  const texto = buscador.value.toLowerCase().trim();
 
-  const fertilizantesFiltrados = fertilizantesGlobal.filter(f => {
-    // Filtro por texto (nombre o tipo)
-    return textoBusqueda === "" || 
-      f.nombre.toLowerCase().includes(textoBusqueda) ||
-      f.tipo.toLowerCase().includes(textoBusqueda);
-  });
+  const filtrados = fertilizantesGlobal.filter(f =>
+    f.nombre.toLowerCase().includes(texto) ||
+    f.tipo.toLowerCase().includes(texto) ||
+    f.unidad.toLowerCase().includes(texto) ||
+    (f.descripcion || "").toLowerCase().includes(texto)
+  );
 
-  renderizarFertilizantes(fertilizantesFiltrados);
-  actualizarContadorResultados(fertilizantesFiltrados.length, fertilizantesGlobal.length);
+  renderizarFertilizantes(filtrados);
+  actualizarContadorResultados(filtrados.length, fertilizantesGlobal.length);
 }
 
-function actualizarContadorResultados(encontrados, total) {
-  const hayFiltros = buscador.value.trim() !== "";
-  
-  if (hayFiltros) {
-    resultadosFiltros.textContent = `${encontrados} de ${total} fertilizantes`;
-    resultadosFiltros.style.display = "inline-block";
-  } else {
-    resultadosFiltros.style.display = "none";
-  }
-}
-
-// Event listener para filtro
 buscador.addEventListener("input", aplicarFiltros);
 
-// Guardar / Editar fertilizante
+function actualizarContadorResultados(encontrados, total) {
+  if (buscador.value.trim() === "") {
+    resultadosFiltros.style.display = "none";
+  } else {
+    resultadosFiltros.textContent = `${encontrados} de ${total} fertilizantes`;
+    resultadosFiltros.style.display = "inline-block";
+  }
+}
+
+// Guardar / editar
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
+
   const nuevo = {
     nombre: document.getElementById("nombre").value,
     tipo: document.getElementById("tipo").value,
@@ -118,34 +120,32 @@ form.addEventListener("submit", async (e) => {
 
   try {
     if (editandoId) {
-      // Editar
       await fetch(`${API_URL}/${editandoId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(nuevo)
       });
-      alert("✅ Fertilizante actualizado correctamente");
+      alert("Fertilizante actualizado");
     } else {
-      // Nuevo
       await fetch(`${API_URL}/${ID_ADMIN}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(nuevo)
       });
-      alert("✅ Fertilizante creado correctamente");
+      alert("Fertilizante creado");
     }
 
     modal.style.display = "none";
     form.reset();
-    buscador.value = ""; // Limpiar búsqueda
-    await cargarFertilizantes();
-  } catch (error) {
-    console.error("Error guardando fertilizante:", error);
-    alert("Error al guardar el fertilizante. Verifica la conexión con el servidor.");
+    buscador.value = "";
+    cargarFertilizantes();
+
+  } catch (e) {
+    alert("Error al guardar fertilizante.");
   }
 });
 
-// Editar fertilizante
+// Editar
 async function editarFertilizante(id) {
   try {
     const res = await fetch(`${API_URL}/${id}`);
@@ -161,44 +161,40 @@ async function editarFertilizante(id) {
     document.getElementById("descripcion").value = f.descripcion || "";
 
     modal.style.display = "flex";
-  } catch (error) {
-    console.error("Error cargando fertilizante:", error);
-    alert("Error al cargar el fertilizante para edición.");
+  } catch (e) {
+    alert("Error cargando fertilizante.");
   }
 }
 
-// Eliminar fertilizante
+// Eliminar
 async function eliminarFertilizante(id) {
-  if (confirm("¿Seguro que deseas eliminar este fertilizante?")) {
-    try {
-      await fetch(`${API_URL}/${id}/${ID_ADMIN}`, {
-        method: "DELETE"
-      });
-      alert("✅ Fertilizante eliminado correctamente");
-      buscador.value = ""; // Limpiar búsqueda
-      await cargarFertilizantes();
-    } catch (error) {
-      console.error("Error eliminando fertilizante:", error);
-      alert("Error al eliminar el fertilizante.");
-    }
+  if (!confirm("¿Eliminar fertilizante?")) return;
+
+  try {
+    await fetch(`${API_URL}/${id}/${ID_ADMIN}`, { method: "DELETE" });
+
+    alert("Fertilizante eliminado");
+    buscador.value = "";
+    cargarFertilizantes();
+
+  } catch (e) {
+    alert("Error eliminando fertilizante.");
   }
 }
 
-// Cerrar modal al hacer clic fuera
-window.onclick = function(event) {
-  if (event.target == modal) {
+// Modal clic fuera
+window.onclick = (e) => {
+  if (e.target === modal) {
     modal.style.display = "none";
     form.reset();
   }
 };
 
 function cerrarSesion() {
-  if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
-    localStorage.removeItem('usuario');
+  if (confirm("¿Cerrar sesión?")) {
     localStorage.clear();
-    window.location.href = '../login/login.html';
+    window.location.href = "../login/Login.html";
   }
 }
 
-// Cargar inicial
 cargarFertilizantes();
