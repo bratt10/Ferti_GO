@@ -17,9 +17,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   let novedadesGlobal = [];
 
-  /* ==========================
-        RENDER TABLA
-     ========================== */
   function renderNovedades(lista) {
     tabla.innerHTML = "";
 
@@ -65,10 +62,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       tabla.appendChild(fila);
     });
   }
-
-  /* ==========================
-        CARGAR DATOS
-     ========================== */
   async function cargarNovedades() {
     try {
       const response = await fetch(API_URL);
@@ -90,9 +83,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  /* ==========================
-        FILTROS POR FECHA
-     ========================== */
   function aplicarFiltros() {
     const fechaMin = fechaDesde.value ? new Date(fechaDesde.value) : null;
     const fechaMax = fechaHasta.value ? new Date(fechaHasta.value) : null;
