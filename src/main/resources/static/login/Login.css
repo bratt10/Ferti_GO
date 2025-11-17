@@ -14,7 +14,7 @@ body {
 
 /* Fondo solo para la página de login */
 body.login-page {
-  background: url("campo.jpg") no-repeat center center fixed !important;
+  background: url("./campo.jpg") no-repeat center center fixed !important;
   background-size: cover !important;
 }
 
