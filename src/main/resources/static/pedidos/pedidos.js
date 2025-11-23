@@ -16,12 +16,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   let pedidosGlobal = [];
 
-  function obtenerFechaSolo(fechaString) {
-    if (!fechaString) return null;
-    const fecha = new Date(fechaString);
-    return new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate());
-  }
-
   function renderizarPedidos(pedidos) {
     tablaPedidos.innerHTML = "";
 
@@ -39,36 +33,44 @@ document.addEventListener("DOMContentLoaded", async () => {
       const fila = document.createElement("tr");
       fila.dataset.id = p.idSolicitud;
 
+      // Colores de estado
       let estadoColor = "";
       let estadoClass = "";
       if (p.estado === "APROBADA") {
-        estadoColor = "style='background-color:#c8e6c9; color:#1b5e20; font-weight:bold;'";
+        estadoColor = "style='background:#c8e6c9;color:#1b5e20;font-weight:bold;'";
         estadoClass = "estado-aprobada";
       }
       if (p.estado === "RECHAZADA") {
-        estadoColor = "style='background-color:#ffcdd2; color:#b71c1c; font-weight:bold;'";
+        estadoColor = "style='background:#ffcdd2;color:#b71c1c;font-weight:bold;'";
         estadoClass = "estado-rechazada";
       }
       if (p.estado === "PENDIENTE") {
-        estadoColor = "style='background-color:#fff9c4; color:#f57f17; font-weight:bold;'";
+        estadoColor = "style='background:#fff9c4;color:#f57f17;font-weight:bold;'";
         estadoClass = "estado-pendiente";
       }
 
-      // AQUÍ ESTÁN LOS CAMBIOS CLAVE:
+      // CAMPOS CORREGIDOS SEGÚN TU JSON REAL
       const nombreFinca = p.finca?.nombre || "Sin finca";
-      const ubicacionFinca = p.finca?.ubicacion || p.ubicacion || "Sin ubicación";
-
+      const ubicacionFinca = p.finca?.ubicacion || "Sin ubicación";
+      const fertilizante = p.tipo_fertilizante || "-";                    // ← con guion bajo
+      const cantidad = p.cantidad || "-";
+      const fechaRequerida = p.fecha_requerida 
+        ? new Date(p.fecha_requerida).toLocaleDateString('es-ES') 
+        : "-";                                                            // ← con guion bajo
       const fechaSolicitud = p.fecha_solicitud 
-        ? new Date(p.fecha_solicitud).toLocaleString('es-ES')
+        ? new Date(p.fecha_solicitud).toLocaleString('es-ES', {
+            day: '2-digit', month: '2-digit', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+          }) 
         : "-";
 
       fila.innerHTML = `
         <td>${p.idSolicitud}</td>
         <td>${nombreFinca}</td>
         <td>${ubicacionFinca}</td>
-        <td>${p.tipoFertilizante || "-"}</td>
-        <td>${p.cantidad}</td>
-        <td>${p.fechaRequerida || "-"}</td>
+        <td>${fertilizante}</td>
+        <td>${cantidad}</td>
+        <td>${fechaRequerida}</td>
         <td>${fechaSolicitud}</td>
         <td>${p.motivo || "-"}</td>
         <td>${p.notas || "-"}</td>
@@ -90,14 +92,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       console.log('Cargando pedidos desde:', BASE);
       const res = await fetch(BASE);
-      
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) throw new Error(`Error HTTP ${res.status}`);
 
       const pedidos = await res.json();
       console.log('Pedidos recibidos:', pedidos);
 
       pedidosGlobal = pedidos;
 
+      // Actualizar contadores
       totalPedidos.textContent = pedidos.length;
       pendientes.textContent = pedidos.filter(p => p.estado === "PENDIENTE").length;
       aprobados.textContent = pedidos.filter(p => p.estado === "APROBADA").length;
@@ -108,7 +110,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     } catch (err) {
       console.error('Error al cargar pedidos:', err);
-      tablaPedidos.innerHTML = `<tr><td colspan="11">Error al cargar pedidos. Revisa la consola.</td></tr>`;
+      tablaPedidos.innerHTML = `<tr><td colspan="11" style="color:red;">Error al conectar con el servidor</td></tr>`;
     }
   }
 
@@ -117,13 +119,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     const estadoSel = filtroEstado.value;
 
     const filtrados = pedidosGlobal.filter(p => {
-      // CLAVE: ahora buscamos dentro del objeto finca
       const enFinca = p.finca?.nombre?.toLowerCase().includes(texto) || false;
-      const enUbicacion = p.finca?.ubicacion?.toLowerCase().includes(texto) || 
-                          p.ubicacion?.toLowerCase().includes(texto) || false;
-      const enFertilizante = p.tipoFertilizante?.toLowerCase().includes(texto) || false;
+      const enUbicacion = (p.finca?.ubicacion?.toLowerCase().includes(texto)) || false;
+      const enFertilizante = (p.tipo_fertilizante?.toLowerCase().includes(texto)) || false;
+      const enMotivo = (p.motivo?.toLowerCase().includes(texto)) || false;
 
-      const coincideTexto = texto === "" || enFinca || enUbicacion || enFertilizante;
+      const coincideTexto = texto === "" || enFinca || enUbicacion || enFertilizante || enMotivo;
       const coincideEstado = estadoSel === "TODOS" || p.estado === estadoSel;
 
       return coincideTexto && coincideEstado;
@@ -148,22 +149,38 @@ document.addEventListener("DOMContentLoaded", async () => {
   btnLimpiarFiltros.addEventListener("click", () => {
     buscador.value = "";
     filtroEstado.value = "TODOS";
+    fechaDesde.value = "";
+    fechaHasta.value = "";
     aplicarFiltros();
   });
 
+  // Cambiar estado del pedido
   window.cambiarEstado = async (id, estado) => {
     try {
-      const res = await fetch(`${BASE}/${id}/estado?estado=${estado}`, { method: "PUT" });
+      const res = await fetch(`${BASE}/${id}/estado?estado=${estado}`, { 
+        method: "PUT" 
+      });
+
       if (res.ok) {
         alert(`Pedido ${estado.toLowerCase()} correctamente`);
-        cargarPedidos();
+        cargarPedidos(); // Recarga completa
       } else {
-        alert("Error al cambiar estado");
+        const error = await res.text();
+        alert("Error: " + error);
       }
     } catch (err) {
-      alert("Error de conexión");
+      alert("Error de conexión con el servidor");
     }
   };
 
+  // CARGAR AL INICIO
   cargarPedidos();
 });
+
+// Cerrar sesión 
+function cerrarSesion() {
+  if (confirm("¿Cerrar sesión?")) {
+    localStorage.clear();
+    window.location.href = "../login/login.html";
+  }
+}
