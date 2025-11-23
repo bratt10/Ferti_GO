@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const btnLimpiarFiltros = document.getElementById("btnLimpiarFiltros");
   const resultadosFiltros = document.getElementById("resultadosFiltros");
 
-  const BASE = "https://fertigo-production.up.railway.app/solicitudFertilizante"; // CAMBIO AQUÍ
+  const BASE = "https://fertigo-production.up.railway.app/solicitudFertilizante";
 
   let pedidosGlobal = [];
 
@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (pedidos.length === 0) {
       tablaPedidos.innerHTML = `
         <tr>
-          <td colspan="11" class="no-resultados">
+          <td colspan="12" class="no-resultados">
             No se encontraron pedidos con los criterios seleccionados
           </td>
         </tr>
@@ -59,6 +59,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         estadoClass = "estado-pendiente";
       }
 
+      // Formatear fecha de solicitud
+      let fechaSolicitudFormateada = "-";
+      const campoFecha = p.fecha_solicitud || p.fechaSolicitud || p.fechaCreacion;
+      if (campoFecha) {
+        const fecha = new Date(campoFecha);
+        fechaSolicitudFormateada = fecha.toLocaleString('es-ES', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      }
+
       fila.innerHTML = `
         <td>${p.idSolicitud}</td>
         <td>${p.finca}</td>
@@ -66,6 +80,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         <td>${p.tipoFertilizante}</td>
         <td>${p.cantidad}</td>
         <td>${p.fechaRequerida}</td>
+        <td>${fechaSolicitudFormateada}</td>
         <td>${p.motivo}</td>
         <td>${p.notas || "-"}</td>
         <td>${p.prioridad}</td>
@@ -88,7 +103,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Cargar solicitudes
   async function cargarPedidos() {
     try {
-      console.log('Cargando pedidos desde:', BASE); // DEBUG
+      console.log('Cargando pedidos desde:', BASE);
       const res = await fetch(BASE);
       
       if (!res.ok) {
@@ -97,7 +112,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
       
       const pedidos = await res.json();
-      console.log('Pedidos recibidos:', pedidos); // DEBUG
+      console.log('Pedidos recibidos:', pedidos);
 
       pedidosGlobal = pedidos;
 
@@ -131,7 +146,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       let coincideFecha = true;
       
-      // AJUSTA ESTE NOMBRE según tu base de datos (mira la imagen de Railway)
       const campoFecha = p.fecha_solicitud || p.fechaCreacion || p.fechaSolicitud || p.createdAt;
       
       if ((fechaMin || fechaMax) && campoFecha) {
@@ -216,5 +230,5 @@ function cerrarSesion() {
     localStorage.removeItem('usuario');
     localStorage.clear();
     window.location.href = '../login/login.html';
-    }
+  }
 }
