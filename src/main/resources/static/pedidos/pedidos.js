@@ -23,7 +23,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     pedidos.forEach(p => {
       const fila = document.createElement("tr");
 
-      // Colores de estado
       let colorEstado = "";
       if (p.estado === "APROBADA") colorEstado = "style='background:#d4edda;color:#155724;font-weight:bold;'";
       if (p.estado === "RECHAZADA") colorEstado = "style='background:#f8d7da;color:#721c24;font-weight:bold;'";
@@ -34,7 +33,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         <td>${p.finca || "Sin finca"}</td>
         <td>${p.ubicacion || "Sin ubicación"}</td>
         <td>${p.tipo_fertilizante || "-"}</td>
-        <td>${p.cantidad}</td>
+        <td>${p.cantidad || "-"}</td>
         <td>${p.fecha_requerida ? new Date(p.fecha_requerida).toLocaleDateString('es-ES') : "-"}</td>
         <td>${p.fecha_solicitud ? new Date(p.fecha_solicitud).toLocaleString('es-ES', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'}) : "-"}</td>
         <td>${p.motivo || "-"}</td>
@@ -59,7 +58,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (!res.ok) throw new Error("Error " + res.status);
       const pedidos = await res.json();
 
-      console.log("PEDIDOS CARGADOS CORRECTAMENTE:", pedidos);
+      console.log("PEDIDOS CARGADOS:", pedidos);
 
       pedidosGlobal = pedidos;
 
@@ -69,6 +68,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       rechazados.textContent = pedidos.filter(p => p.estado === "RECHAZADA").length;
 
       renderizarPedidos(pedidos);
+      actualizarContadorResultados(pedidos.length, pedidos.length);
     } catch (err) {
       console.error("Error:", err);
       tablaPedidos.innerHTML = `<tr><td colspan="12" style="color:red;">Error de conexión</td></tr>`;
@@ -90,10 +90,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     renderizarPedidos(filtrados);
-    resultadosFiltros.textContent = `${filtrados.length} de ${pedidosGlobal.length} pedidos`;
-    resultadosFiltros.style.display = filtrados.length < pedidosGlobal.length ? "inline-block" : "none";
+    actualizarContadorResultados(filtrados.length, pedidosGlobal.length);
   }
 
+  function actualizarContadorResultados(encontrados, total) {
+    if (buscador.value || filtroEstado.value !== "TODOS") {
+      resultadosFiltros.textContent = `${encontrados} de ${total} pedidos`;
+      resultadosFiltros.style.display = "inline-block";
+    } else {
+      resultadosFiltros.style.display = "none";
+    }
+  }
+
+  // Eventos
   buscador.addEventListener("input", aplicarFiltros);
   filtroEstado.addEventListener("change", aplicarFiltros);
   btnLimpiarFiltros.addEventListener("click", () => {
@@ -106,10 +115,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       const res = await fetch(`${BASE}/${id}/estado?estado=${nuevoEstado}`, { method: "PUT" });
       if (res.ok) {
-        alert(`Pedido ${nuevoEstado.toLowerCase()} correctamente`);
+        alert(`Pedido ${nuevoEstado === "APROBADA" ? "aprobado" : "rechazado"} correctamente`);
         cargarPedidos();
       } else {
-        alert("Error al cambiar estado");
+        alert("Error al cambiar el estado");
       }
     } catch {
       alert("Error de conexión");
@@ -119,6 +128,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   cargarPedidos();
 });
 
+// Cerrar sesión (lo tenías afuera, lo dejo igual)
 function cerrarSesion() {
   if (confirm("¿Cerrar sesión?")) {
     localStorage.clear();
