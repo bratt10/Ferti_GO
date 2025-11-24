@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         <td>${p.id_solicitud || '-'}</td>
         <td>${p.finca || '-'}</td>
         <td>${p.ubicacion || '-'}</td>
-        <td>${p.tipo_fertilizante || '-'}</td>
+        <td>${p.tipo_fertilizante || 'NULL'}</td>
         <td>${p.cantidad || '-'}</td>
         <td>${p.fecha_requerida || '-'}</td>
         <td>${fechaSolicitudFormateada}</td>
