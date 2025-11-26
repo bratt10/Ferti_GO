@@ -102,28 +102,30 @@ public class UsuarioController {
     }
 
     // Cambiar contraseña
-    @PutMapping("/{id}/cambiar-contrasena")
-    public ResponseEntity<?> cambiarContrasena(
-            @PathVariable Long id,
-            @RequestBody Map<String, String> body) {
-
-        String oldPassword = body.get("oldPassword");
-        String newPassword = body.get("newPassword");
-
-        UsuarioModel usuario = usuarioService.obtenerUsuario(id);
-        if (usuario == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
-        }
-
-        // Validar contraseña actual
-        if (!usuario.getContraseña().equals(oldPassword)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Contraseña actual incorrecta");
-        }
-
-        usuario.setContraseña(newPassword);
-        usuarioService.actualizarUsuario(id, usuario);
-
-        return ResponseEntity.ok("Contraseña cambiada correctamente");
+    @PutMapping("/{id}/cambiar-contrasena") 
+    public ResponseEntity<?> cambiarContrasena(@PathVariable Long id, @RequestBody Map<String, String> body) {
+    // Aceptar tanto camelCase como snake_case
+    String oldPassword = body.get("oldPassword");
+    if (oldPassword == null) {
+        oldPassword = body.get("old_password");
+    }    
+    String newPassword = body.get("newPassword");
+    if (newPassword == null) {
+        newPassword = body.get("new_password");
     }
+    if (oldPassword == null || newPassword == null) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Faltan campos requeridos");
+    }
+    UsuarioModel usuario = usuarioService.obtenerUsuario(id);
+    if (usuario == null) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
+    }
+    // Validar contraseña actual
+    if (!usuario.getContraseña().equals(oldPassword)) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Contraseña actual incorrecta");
+    }
+    usuario.setContraseña(newPassword);
+    usuarioService.actualizarUsuario(id, usuario);
+    return ResponseEntity.ok("Contraseña cambiada correctamente");
+}
 }
