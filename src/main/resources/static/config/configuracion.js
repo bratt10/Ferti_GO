@@ -1,23 +1,13 @@
-// ==========================================
-// CONFIGURACIÓN DEL SISTEMA - FERTIGO
-// ==========================================
-
-const API_URL = 'http://localhost:8080/usuario';
-const API_CONFIG_URL = 'http://localhost:8080/api/configuracion';
+const API_URL = 'https://fertigo-production.up.railway.app/usuario';
+const API_CONFIG_URL = 'https://fertigo-production.up.railway.app/api/configuracion';
 let usuarioActual = null;
 let configuracionId = null; // Para guardar el ID de la configuración
 
-// ==========================================
-// INICIALIZACIÓN
-// ==========================================
+
 document.addEventListener('DOMContentLoaded', function() {
   cargarUsuario();
   cargarConfiguracion();
 });
-
-// ==========================================
-// CARGAR USUARIO ACTUAL
-// ==========================================
 function cargarUsuario() {
   const user = localStorage.getItem('usuario');
   if (user) {
@@ -36,9 +26,7 @@ function cargarUsuario() {
   }
 }
 
-// ==========================================
 // CARGAR CONFIGURACIÓN ACTUAL
-// ==========================================
 async function cargarConfiguracion() {
   try {
     // GET /api/configuracion (según tu controlador)
