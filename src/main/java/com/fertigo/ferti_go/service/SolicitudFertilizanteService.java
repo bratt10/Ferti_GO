@@ -14,23 +14,31 @@ public class SolicitudFertilizanteService {
     @Autowired
     private SolicitudFertilizanteRepository solicitudRepo;
 
-
     // Crear nueva solicitud (solo capataz)
     public SolicitudFertilizante crearSolicitud(SolicitudFertilizante solicitud, UsuarioModel usuario) {
-        if (usuario.getRol() != UsuarioModel.Rol.CAPATAZ) {
-            throw new RuntimeException("Solo los capataces pueden crear solicitudes");
-        }
-
-        if (usuario.getFinca() != null) {
-            solicitud.setFinca(usuario.getFinca().getNombre());
-            solicitud.setUbicacion(usuario.getFinca().getUbicacion());
-        }
-
-        solicitud.setUsuario(usuario);
-        return solicitudRepo.save(solicitud);
+    if (usuario.getRol() != UsuarioModel.Rol.CAPATAZ) {
+        throw new RuntimeException("Solo los capataces pueden crear solicitudes");
+    }
+    if (solicitud.getTipoFertilizante() == null || solicitud.getTipoFertilizante().trim().isEmpty()) {
+        throw new RuntimeException("El tipo de fertilizante es obligatorio");
+    }
+    
+    if (solicitud.getCantidad() == null || solicitud.getCantidad() <= 0) {
+        throw new RuntimeException("La cantidad debe ser mayor a 0");
+    }
+    if (usuario.getFinca() != null) {
+        solicitud.setFinca(usuario.getFinca().getNombre());
+        solicitud.setUbicacion(usuario.getFinca().getUbicacion());
     }
 
-    // Listar todas
+    solicitud.setUsuario(usuario);
+    System.out.println("💾 Guardando solicitud:");
+    System.out.println("   - Tipo: " + solicitud.getTipoFertilizante());
+    System.out.println("   - Cantidad: " + solicitud.getCantidad());
+    System.out.println("   - Usuario ID: " + usuario.getId());
+    
+    return solicitudRepo.save(solicitud);
+}   // Listar todas
     public List<SolicitudFertilizante> listarTodos() {
         return solicitudRepo.findAll();
     }
